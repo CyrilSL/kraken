@@ -7,7 +7,7 @@ import {
 import { Lifetime } from 'awilix';
 import { User } from '../models/user';
 import StoreRepository from '../repositories/store';
-
+import { Store } from 'src/models/store';
 type CreateUserInput = {
   store_id?: string;
 } & MedusaCreateUserInput;
@@ -28,6 +28,7 @@ class UserService extends MedusaUserService {
     try {
       this.loggedInUser_ = container.loggedInUser;
     } catch (e) {
+      // console.log(e)
       // avoid errors when backend first runs
     }
   }
@@ -46,14 +47,12 @@ class UserService extends MedusaUserService {
   }
 
   async list(selector: FilterableUserProps & { store_id?: string }, config?: {}): Promise<User[]> {
+    console.log('AAAAAAAAAAAAAAAAAAA');
+
+    
     if (!selector.store_id && this.loggedInUser_?.store_id) {
       selector.store_id = this.loggedInUser_.store_id;
     }
-
-    console.log('\nAAAAAAAAAAAAAAAAAAA', this.loggedInUser_?.store_id, '\n');
-
-    // config.select?.push('store_id');
-    // config.relations?.push('store');
 
     return await super.list(selector, config);
   }
@@ -66,6 +65,43 @@ class UserService extends MedusaUserService {
   ): Promise<User> {
     return super.update(userId, update);
   }
-}
 
+  async createStoreForUser(userId: string, storeDetails: Partial<Store> = {}): Promise<Store> {
+    const storeRepo = this.manager_.withRepository(this.storeRepository_);
+    const userRepo = this.manager_.getRepository(User);
+
+    // Include a name in the storeDetails if not provided
+    storeDetails.name = storeDetails.name || "My New Store";
+
+    let newStore = storeRepo.create(storeDetails);
+    newStore = await storeRepo.save(newStore);
+
+    const user = await userRepo.findOne({ where: { id: userId }, relations: ['stores'] });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    user.stores = user.stores || [];
+    user.stores.push(newStore);
+    await userRepo.save(user);
+
+    return newStore;
+  }
+
+  async fetchUsersStores(userId: string): Promise<Store[]> {
+    console.log("In Fetch Service")
+    const userRepo = this.manager_.getRepository(User);
+    const user = await userRepo.findOne({
+      where: { id: userId },
+      relations: ['stores']  // Ensure to load the stores relation
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return user.stores || [];
+  }
+
+}
 export default UserService;

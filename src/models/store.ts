@@ -1,5 +1,5 @@
 import { Store as MedusaStore } from '@medusajs/medusa';
-import { Entity, JoinColumn, OneToMany, Column } from 'typeorm';
+import { Entity, JoinColumn, OneToMany, Column, ManyToMany } from 'typeorm';
 import { Order } from './order';
 import { Product } from './product';
 import { Role } from './role';
@@ -7,7 +7,7 @@ import { User } from './user';
 
 @Entity()
 export class Store extends MedusaStore {
-  @OneToMany(() => User, (user) => user?.store)
+  @ManyToMany(() => User, (user) => user.stores)
   members?: User[];
 
   @OneToMany(() => Product, (product) => product?.store)

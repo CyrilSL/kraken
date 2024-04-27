@@ -24,6 +24,14 @@ class StoreService extends MedusaStoreService {
     return this.retrieveForLoggedInUser(config);
   }
 
+
+  async createStore(storeDetails?: Partial<Store>): Promise<Store> {
+    const storeRepo = this.manager_.withRepository(this.storeRepository_);
+    const newStore = storeRepo.create(storeDetails || {}); // Create a new store with provided details or empty if none provided
+    await storeRepo.save(newStore);
+    return newStore;
+  }
+
   async retrieveForLoggedInUser(config?: FindConfig<Store>) {
     const storeRepo = this.manager_.withRepository(this.storeRepository_);
     const store = await storeRepo.findOne({
