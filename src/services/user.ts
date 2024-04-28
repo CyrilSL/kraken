@@ -99,7 +99,7 @@ class UserService extends MedusaUserService {
     if (!user) {
       throw new Error('User not found');
     }
-
+    console.log("User stores : ",user.stores)
     return user.stores || [];
   }
 
