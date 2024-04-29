@@ -1,20 +1,18 @@
 import { Store as MedusaStore } from '@medusajs/medusa';
-import { Entity, JoinColumn, OneToMany, Column, ManyToMany } from 'typeorm';
-import { Order } from './order';
+import { Entity, JoinColumn, OneToMany, ManyToMany, Column } from 'typeorm';
+
 import { Product } from './product';
 import { Role } from './role';
 import { User } from './user';
 
 @Entity()
 export class Store extends MedusaStore {
-  @ManyToMany(() => User, (user) => user.stores)
+  @OneToMany(() => User, (user) => user?.store)
   members?: User[];
 
-  @OneToMany(() => Product, (product) => product?.store)
-  products?: Product[];
-
-  @OneToMany(() => Order, (order) => order?.store)
-  orders?: Order[];
+  
+  @ManyToMany(() => Product, product => product.store)
+  products: Product[];
 
   @OneToMany(() => Role, (role) => role.store)
   @JoinColumn({ name: 'id', referencedColumnName: 'store_id' })
@@ -22,4 +20,7 @@ export class Store extends MedusaStore {
 
   @Column({ type: 'varchar', unique: true, nullable: true })
   domain: string;
+
+  // @Column({ type: 'varchar', nullable: true })
+  // banner_image: string;
 }

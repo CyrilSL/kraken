@@ -37,13 +37,13 @@ class DomainService extends MedusaStoreService {
         return store;
     }
 
-    // async fetchProductsByDomain(domain: string): Promise<any[]> {
-    //     const store = await this.storeRepository_.findOne({ where: { domain } });
-    //     if (!store) {
-    //         throw new Error('Store not found');
-    //     }
-    //     return this.productService_.fetchProducts(store.id);
-    // }
+    async fetchProductsByDomain(domain: string): Promise<any[]> {
+        const store = await this.storeRepository_.findOne({ where: { domain } });
+        if (!store) {
+            throw new Error('Store not found');
+        }
+        return this.productService_.fetchProducts(store.id);
+    }
 
     async findByDomain(domainName: string): Promise<Store | undefined> {
         const store = await this.storeRepository_.findOne({
