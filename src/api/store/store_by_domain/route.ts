@@ -20,3 +20,4 @@ export const GET = async (
     res.status(500).json({ error: error.message });
   }
 };
+
