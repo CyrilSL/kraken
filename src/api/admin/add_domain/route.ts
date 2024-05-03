@@ -9,8 +9,14 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     const domainService = req.scope.resolve("domainService") as DomainService;
 
     // Extract storeId and domain from the request body
-    const { storeId, domain } = req.body;
+// Define an interface for the request body
+interface RequestBody {
+  storeId: string;
+  domain: string;
+}
 
+// Update the type of req.body to the defined interface
+const { storeId, domain } = req.body as RequestBody;
     // Check for required parameters
     if (!storeId || !domain) {
       return res.status(400).json({ message: "Missing storeId or domain" });

@@ -74,6 +74,15 @@ class ProductService extends MedusaProductService {
 
     return await super.create(productObject);
   }
+
+
+  async fetchProducts(storeId: string): Promise<Product[]> {
+    const selector = { store_id: storeId };
+    const config = { relations: ['store'] };
+
+    return await this.list(selector, config);
+}
+
 }
 
 export default ProductService
