@@ -22,8 +22,7 @@ import {
     //  const storeId = order.store.id
 
     // await orderService.consoleLogging(store)
-    // await orderService.bindOrderToStore(order.id,store.id)
-    console.log("Order Subscriber!")
+    await orderService.bindOrderToStore(order.id,store.id)
   }
   
   export const config: SubscriberConfig = {

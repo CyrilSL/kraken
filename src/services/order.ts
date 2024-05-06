@@ -1,80 +1,63 @@
-import { OrderService as MedusaOrderService } from '@medusajs/medusa';
-import { CreateOrderInput } from '@medusajs/medusa/dist/types/orders';
-import { Lifetime } from 'awilix';
-import { User } from 'src/models/user';
-
-type OrderSelector = {
-  store_id?: string;
-} & CreateOrderInput;
+import { Lifetime } from "awilix";
+import { OrderService as MedusaOrderService } from "@medusajs/medusa";
+import OrderRepository from "../repositories/order";
+import StoreRepository from "../repositories/store";
+import { Order } from "../models/order"
 
 class OrderService extends MedusaOrderService {
   static LIFE_TIME = Lifetime.SCOPED;
-  protected readonly loggedInUser_: User | null;
+  protected readonly orderRepository_: typeof OrderRepository;
+  protected readonly storeRepository_: typeof StoreRepository;
 
   constructor(container, options) {
     // @ts-expect-error prefer-rest-params
     super(...arguments);
-
-    try {
-      this.loggedInUser_ = container.loggedInUser;
-    } catch (e) {
-      // avoid errors when the backend first runs
-    }
+    this.orderRepository_ = container.orderRepository;
+    this.storeRepository_ = container.storeRepository;
   }
 
-  // async list(
-  //   selector: Selector<Order>,
-  //   config?: FindConfig<Order>
-  // ): Promise<Order[]> {
-  //   if (!selector.store_id && this.loggedInUser_?.store_id) {
-  //     selector.store_id = this.loggedInUser_.store_id;
-  //   }
+  async bindOrderToStore(orderId: string, storeId: string): Promise<void> {
+    const order = await this.orderRepository_.findOne({
+      where: { id: orderId },
+      relations: ["store"],
+    });
+    if (!order) {
+      throw new Error(`Order with id ${orderId} not found`);
+    }
+    if (order.store?.id === storeId) {
+      return;
+    }
 
-  //   config.select?.push('store_id');
+    const storeRepo = this.manager_.withRepository(this.storeRepository_);
+    const store = await storeRepo.findOne({ where: { id: storeId } });
+    if (!store) {
+      throw new Error(`Store with id ${storeId} not found`);
+    }
 
-  //   // config.relations?.push('store');
-  //   config.relations.push('children', 'parent', 'store');
+    order.store = store;
+    console.log("Binded Order ID : "+orderId+" Store ID : ", storeId)
+    await this.orderRepository_.save(order);
+  }
 
-  //   return await super.list(selector, config);
-  // }
 
-  // async listAndCount(
-  //   selector: QuerySelector<Order>,
-  //   config?: FindConfig<Order>
-  // ): Promise<[Order[], number]> {
-  //   if (!selector.store_id && this.loggedInUser_?.store_id) {
-  //     selector.store_id = this.loggedInUser_.store_id;
-  //   }
+  async getStoreOrders(storeId: string): Promise<Order[]> {
+    const storeRepo = this.manager_.withRepository(this.storeRepository_);
+    const store = await storeRepo.findOne({ where: { id: storeId } });
+    if (!store) {
+      throw new Error(`Store with id ${storeId} not found`);
+    }
 
-  //   config.select?.push('store_id');
+    const orders = await this.orderRepository_.find({
+      where: { store: { id: storeId } },
+      relations: ["store"],
+    });
+    return orders;
+  }
 
-  //   // config.relations?.push('store');
-  //   config.relations.push('children', 'parent', 'store');
-
-  //   return await super.listAndCount(selector, config);
-  // }
-
-  // async retrieve(orderId: string, config?: FindConfig<Order>): Promise<Order> {
-  //   config.relations = [
-  //     ...(config.relations || []),
-  //     'children',
-  //     'parent',
-  //     'store',
-  //   ];
-
-  //   const order = await super.retrieve(orderId, config);
-
-  //   if (
-  //     order.store?.id &&
-  //     this.loggedInUser_?.store_id &&
-  //     order.store.id !== this.loggedInUser_.store_id
-  //   ) {
-  //     // Throw error if you don't want an order to be accessible to other stores
-  //     throw new Error('Order does not exist in store.');
-  //   }
-
-  //   return order;
-  // }
+  async consoleLogging(oneVar: any): Promise<void>{
+    console.log("From subscriber yoooo : ",oneVar)
+   
+  }
 }
 
 export default OrderService;
