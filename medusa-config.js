@@ -42,31 +42,34 @@ const plugins = [
       upload_dir: "uploads",
     },
   },
-  // {
-  //   resolve: "@medusajs/admin",
-  //   /** @type {import('@medusajs/admin').PluginOptions} */
-  //   options: {
-  //     autoRebuild: true,
-  //     develop: {
-  //       open: process.env.OPEN_BROWSER !== "false",
-  //     },
-  //   },
-  // },
+  {
+    resolve: "@medusajs/admin",
+    /** @type {import('@medusajs/admin').PluginOptions} */
+    options: {
+      // only enable `serve` in development
+      // you may need to add the NODE_ENV variable
+      // manually
+      serve: process.env.NODE_ENV === "development",
+      develop: {
+        open: process.env.OPEN_BROWSER !== "false",
+      },
+    },
+  },
 ];
 
 const modules = {
-  // eventBus: {
-  //   resolve: "@medusajs/event-bus-redis",
-  //   options: {
-  //     redisUrl: REDIS_URL
-  //   }
-  // },
-  // cacheService: {
-  //   resolve: "@medusajs/cache-redis",
-  //   options: {
-  //     redisUrl: REDIS_URL
-  //   }
-  // },
+  /*eventBus: {
+    resolve: "@medusajs/event-bus-redis",
+    options: {
+      redisUrl: REDIS_URL
+    }
+  },
+  cacheService: {
+    resolve: "@medusajs/cache-redis",
+    options: {
+      redisUrl: REDIS_URL
+    }
+  },*/
 };
 
 /** @type {import('@medusajs/medusa').ConfigModule["projectConfig"]} */
@@ -77,7 +80,7 @@ const projectConfig = {
   database_url: DATABASE_URL,
   admin_cors: ADMIN_CORS,
   // Uncomment the following lines to enable REDIS
-  redis_url: REDIS_URL
+  // redis_url: REDIS_URL
 };
 
 /** @type {import('@medusajs/medusa').ConfigModule} */

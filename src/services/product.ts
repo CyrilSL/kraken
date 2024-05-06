@@ -1,27 +1,30 @@
-import { Lifetime } from "awilix"
-import { 
-  ProductService as MedusaProductService, Product, User,
-} from "@medusajs/medusa"
-import { CreateProductInput as MedusaCreateProductInput, FindProductConfig, ProductSelector as MedusaProductSelector } from "@medusajs/medusa/dist/types/product"
+import { ProductService as MedusaProductService, User } from '@medusajs/medusa';
+import {
+  FindProductConfig,
+  CreateProductInput as MedusaCreateProductInput,
+  ProductSelector as MedusaProductSelector,
+} from '@medusajs/medusa/dist/types/product';
+import { Lifetime } from 'awilix';
+import { Product } from 'src/models/product';
 
 type ProductSelector = {
-  store_id?: string
-} & MedusaProductSelector
+  store_id?: string;
+} & MedusaProductSelector;
 
 type CreateProductInput = {
-  store_id?: string
-} & MedusaCreateProductInput
+  store_id?: string;
+} & MedusaCreateProductInput;
 
 class ProductService extends MedusaProductService {
-  static LIFE_TIME = Lifetime.SCOPED
-  protected readonly loggedInUser_: User | null
+  static LIFE_TIME = Lifetime.SCOPED;
+  protected readonly loggedInUser_: User | null;
 
   constructor(container, options) {
     // @ts-expect-error prefer-rest-params
-    super(...arguments)
+    super(...arguments);
 
     try {
-      this.loggedInUser_ = container.loggedInUser
+      this.loggedInUser_ = container.loggedInUser;
     } catch (e) {
       // avoid errors when backend first runs
     }
@@ -29,33 +32,28 @@ class ProductService extends MedusaProductService {
 
   async list(selector: ProductSelector, config?: FindProductConfig): Promise<Product[]> {
     if (!selector.store_id && this.loggedInUser_?.store_id) {
-      selector.store_id = this.loggedInUser_.store_id
+      selector.store_id = this.loggedInUser_.store_id;
     }
 
-    config.select?.push('store_id')
+    config.select?.push('store_id');
+    config.relations?.push('store');
 
-    config.relations?.push('store')
-
-    return await super.list(selector, config)
+    return await super.list(selector, config);
   }
 
   async listAndCount(selector: ProductSelector, config?: FindProductConfig): Promise<[Product[], number]> {
     if (!selector.store_id && this.loggedInUser_?.store_id) {
-      selector.store_id = this.loggedInUser_.store_id
+      selector.store_id = this.loggedInUser_.store_id;
     }
 
-    config.select?.push('store_id')
+    config.select?.push('store_id');
+    config.relations?.push('store');
 
-    config.relations?.push('store')
-
-    return await super.listAndCount(selector, config)
+    return await super.listAndCount(selector, config);
   }
 
   async retrieve(productId: string, config?: FindProductConfig): Promise<Product> {
-    config.relations = [
-      ...(config.relations || []),
-      'store'
-    ]
+    config.relations = [...(config.relations || []), 'store'];
 
     const product = await super.retrieve(productId, config);
 
@@ -64,25 +62,16 @@ class ProductService extends MedusaProductService {
       throw new Error('Product does not exist in store.');
     }
 
-    return product
+    return product;
   }
 
   async create(productObject: CreateProductInput): Promise<Product> {
     if (!productObject.store_id && this.loggedInUser_?.store_id) {
-      productObject.store_id = this.loggedInUser_.store_id
+      productObject.store_id = this.loggedInUser_.store_id;
     }
 
     return await super.create(productObject);
   }
-
-
-  async fetchProducts(storeId: string): Promise<Product[]> {
-    const selector = { store_id: storeId };
-    const config = { relations: ['store'] };
-
-    return await this.list(selector, config);
 }
 
-}
-
-export default ProductService
+export default ProductService;
