@@ -8,7 +8,6 @@ interface RequestBody {
   domain: string;
 }
 
-
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
     // Resolve the StoreService from the request scope
