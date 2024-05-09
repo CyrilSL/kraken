@@ -5,6 +5,7 @@
 /node_modules
 yarn-error.log
 bun.lockb
+pnpm-lock.yaml
 .idea
 
 coverage
