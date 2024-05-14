@@ -4,6 +4,7 @@ import {
   StoreService as MedusaStoreService, Store, User,
 } from "@medusajs/medusa"
 import StoreRepository from 'src/repositories/store';
+import { EntityManager } from 'typeorm';
 
 
 
@@ -50,6 +51,8 @@ class StoreService extends MedusaStoreService {
         throw new Error('Unable to find the user store');
     }
 
+    
+
     return store;
 }
 
@@ -70,6 +73,28 @@ class StoreService extends MedusaStoreService {
     
   //   return store;
   // }
+
+
+	async createForUser() {
+		return await this.atomicPhase_(async (transactionManager: EntityManager) => {
+			const storeRepository = transactionManager.withRepository(this.storeRepository_);
+			const currencyRepository = transactionManager.withRepository(this.currencyRepository_);
+
+			const newStore = storeRepository.create();
+
+			const usd = await currencyRepository.findOne({
+				where: {
+					code: 'usd',
+				},
+			});
+
+			if (usd) {
+				newStore.currencies = [usd];
+			}
+
+			return await storeRepository.save(newStore);
+		});
+	}
 
 }
 
