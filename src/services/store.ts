@@ -5,7 +5,8 @@ import {
 } from "@medusajs/medusa"
 import StoreRepository from 'src/repositories/store';
 import { EntityManager } from 'typeorm';
-
+import ProductRepository from "src/repositories/products";
+import {Product} from 'src/models/product'
 
 
 
@@ -13,7 +14,7 @@ class StoreService extends MedusaStoreService {
   static LIFE_TIME = Lifetime.SCOPED
    protected readonly loggedInUser_: User | null
   protected storeRepository_: typeof StoreRepository;
-
+  protected productRepository_ : typeof ProductRepository
   constructor(container, options) {
     // @ts-expect-error prefer-rest-params
     super(...arguments)
@@ -50,9 +51,6 @@ class StoreService extends MedusaStoreService {
     if (!store) {
         throw new Error('Unable to find the user store');
     }
-
-    
-
     return store;
 }
 
@@ -62,6 +60,17 @@ class StoreService extends MedusaStoreService {
     // Use the storeRepository to access all stores
     const stores = await this.storeRepository_.find();
     return stores;
+  }
+
+  async fetchProductsByStoreId(storeId: string, config?: FindConfig<Product>): Promise<Product[]> {
+
+ const products = await this.productRepository_.find({
+  where: {
+    store_id: storeId,
+  },
+});
+
+    return products;
   }
 
   // async findByDomain(domainName: string): Promise<Store | undefined> {
