@@ -71,6 +71,16 @@ const plugins = [
       bucketName: process.env.BUCKET_NAME,
     },
   },
+  {
+    resolve: `medusa-payment-stripe`,
+    options: {
+      api_key: process.env.STRIPE_API_KEY,
+      payment_description: "test Sold Product on e-store",
+      capture:true,
+      automatic_payment_methods:true,
+    //  webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
+    },
+  },
   // {
   //   resolve: `@rsc-labs/medusa-documents`,
   //   options: {
