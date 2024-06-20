@@ -45,6 +45,7 @@
     "medusa-payment-manual": "latest",
     "medusa-payment-stripe": "latest",
     "medusa-plugin-auth": "^1.11.1",
+    "medusa-plugin-sendgrid-typescript": "^2.1.3",
     "medusa-react": "^9.0.17",
     "medusa-storage-supabase": "^0.1.7",
     "prism-react-renderer": "^2.0.4",

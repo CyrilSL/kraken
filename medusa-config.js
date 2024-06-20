@@ -81,6 +81,21 @@ const plugins = [
     //  webhook_secret: process.env.STRIPE_WEBHOOK_SECRET,
     },
   },
+  {
+    resolve: `medusa-plugin-sendgrid-typescript`,
+    /** @type {import('medusa-plugin-sendgrid-typescript').PluginOptions} */
+    options: {
+      api_key: process.env.SENDGRID_API_KEY,
+      from: process.env.SENDGRID_FROM,
+      templates: {
+        order_placed_template: {
+          id: process.env.SENDGRID_ORDER_PLACED_ID,
+          // You can add dynamic data to the template by using {variable_name}
+          subject: "Thank you for your order !",
+        },
+      },
+    },
+  },
   // {
   //   resolve: `@rsc-labs/medusa-documents`,
   //   options: {
