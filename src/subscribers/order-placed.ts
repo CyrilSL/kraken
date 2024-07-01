@@ -45,11 +45,11 @@ export default async function handleOrderPlaced({
     from: "lucascyrilsamuel@gmail.com",
     to: order.email,
     dynamic_template_data: {
-      download_links: downloadLinks.map(link => `${process.env.FRONTEND_URL}/download/${link.unique_url}`),
+      download_links: downloadLinks.map(link => `${process.env.FRONTEND_URL}/d/${link.unique_url}`),
     },
   })
 
-  console.log("unique link : ",downloadLinks.map(link => `${process.env.FRONTEND_URL}/download/${link.unique_url}`))
+  console.log("unique link : ",downloadLinks.map(link => `${process.env.FRONTEND_URL}/d/${link.unique_url}`))
 
   const digitalProducts = await Promise.all(
     order.items.map(async (item) => {
